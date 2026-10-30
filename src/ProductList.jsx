@@ -28,7 +28,7 @@ export const plants = [
 export default function ProductList() {
   const dispatch = useDispatch();
   const cart = useSelector(selectCart);
-  const [addedToCart, setAddedToCart] = useState({});
+  const [addedToCart, setAddedToCart] = useState(() => Object.fromEntries(cart.map(item => [item.name, true])));
   const handleAddToCart = plant => {
     if (addedToCart[plant.name] || cart.some(item => item.name === plant.name)) return;
     dispatch(addItem(plant));
@@ -46,7 +46,7 @@ export default function ProductList() {
               <div className="product-details">
                 <h3>{plant.name}</h3>
                 <p className="price">${plant.price.toFixed(2)}</p>
-                <button className="button" disabled={addedToCart[plant.name] || cart.some(item => item.name === plant.name)} onClick={() => handleAddToCart(plant)}>
+                <button className="button" disabled={addedToCart[plant.name]} onClick={() => handleAddToCart(plant)}>
                   {addedToCart[plant.name] || cart.some(item => item.name === plant.name) ? 'Added to Cart' : 'Add to Cart'}
                 </button>
               </div>
