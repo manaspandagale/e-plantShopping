@@ -1,21 +1,31 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { removeItem, updateQuantity, selectCart, selectCartTotal } from './CartSlice';
+import { removeItem, updateQuantity, selectCart } from './CartSlice';
 
 export default function CartItem({ onContinueShopping }) {
   const dispatch = useDispatch();
   const cart = useSelector(selectCart);
-  const totalCartAmount = useSelector(selectCartTotal);
+  const totalAmount = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
 
   const handleIncrement = item => {
     dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
   };
-  const handleDecrement = item => {
-    dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+  const handleRemove = (item) => {
+    dispatch(removeItem(item.name));
   };
-  const handleDelete = item => dispatch(removeItem(item.name));
+  const handleDecrement = (item) => {
+    if (item.quantity === 1) {
+      handleRemove(item);
+    } else {
+      dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+    }
+  };
+  const handleContinueShopping = (e) => {
+    e.preventDefault();
+    onContinueShopping();
+  };
   const handleCheckout = () => window.alert('Coming Soon');
 
-  return <main className="cart-page">
+  return <main className="cart-container cart-page">
     <h1>Your Shopping Cart</h1>
     {cart.length === 0 ? <p>Your cart is empty. Add some plants!</p> : (
       <div className="cart-list">
@@ -24,23 +34,23 @@ export default function CartItem({ onContinueShopping }) {
             <img src={item.image} alt={item.name} />
             <div className="cart-item-details">
               <h2>{item.name}</h2>
-              <p>Unit Price: ${item.price.toFixed(2)}</p>
-              <p>Total: ${(item.price * item.quantity).toFixed(2)}</p>
+              <p>Unit Price: ${item.cost.toFixed(2)}</p>
+              <p>Total: ${(item.cost * item.quantity).toFixed(2)}</p>
               <div className="quantity-controls">
                 <button onClick={() => handleDecrement(item)} aria-label={`Decrease ${item.name}`}>−</button>
                 <span>{item.quantity}</span>
                 <button onClick={() => handleIncrement(item)} aria-label={`Increase ${item.name}`}>+</button>
               </div>
-              <button className="delete-button" onClick={() => handleDelete(item)}>Delete</button>
+              <button className="delete-button" onClick={() => handleRemove(item)}>Delete</button>
             </div>
           </div>
         ))}
       </div>
     )}
-    <h2 className="cart-total">Total Cart Amount: ${totalCartAmount.toFixed(2)}</h2>
+    <h2 className="cart-total">Total Cart Amount: ${totalAmount.toFixed(2)}</h2>
     <div className="cart-actions">
       <button className="button" onClick={handleCheckout}>Checkout</button>
-      <button className="button secondary" onClick={onContinueShopping}>Continue Shopping</button>
+      <button className="get-started-button" onClick={handleContinueShopping}>Continue Shopping</button>
     </div>
   </main>;
 }
