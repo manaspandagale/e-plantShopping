@@ -20,8 +20,13 @@ function Navbar({ onNavigate }) {
 
 export default function App() {
   const [page, setPage] = useState('home');
-  const navigate = destination => { setPage(destination); window.scrollTo(0, 0); };
-  const handleGetStartedClick = () => navigate('products');
+  const [showProductList, setShowProductList] = useState(false);
+  const navigate = destination => { setPage(destination); setShowProductList(destination === 'products'); window.scrollTo(0, 0); };
+  const handleGetStartedClick = () => {
+    setShowProductList(true);
+    setPage('products');
+    window.scrollTo(0, 0);
+  };
   return <>
     <Navbar onNavigate={navigate} />
     {page === 'home' && <main>
@@ -34,7 +39,7 @@ export default function App() {
       </section>
       <AboutUs />
     </main>}
-    {page === 'products' && <ProductList />}
+    {showProductList && page === 'products' && <ProductList onNavigate={navigate} />}
     {page === 'cart' && <CartItem onContinueShopping={handleGetStartedClick} />}
     <footer className="footer">© {new Date().getFullYear()} Paradise Nursery · Grow with us</footer>
   </>;
